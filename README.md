@@ -1,14 +1,14 @@
 # Analysis of Algorithms - Assignment 1: Graph Algorithms
 
 **Author:** Harsha Karimikonda  
-**Language:** C++ (C++17, GCC / MinGW-w64 or Clang)  
+**Language:** C++ (C++17, GCC / MinGW-w64 or Apple Clang)  
 **Repository:** https://github.com/Harsha-Karimikonda/aoa-assignment-1.git
 
 ---
 
 ## 1. Project Overview
 
-This project provides an ultra-minimal, efficient implementation of graph algorithms in C++ without any external libraries, adhering strictly to assignment requirements.
+This project provides an efficient, modular implementation of fundamental graph algorithms in C++ without external graph libraries, strictly adhering to assignment specifications.
 
 ### Graph Model Selection
 * **Model:** **Undirected Graph**
@@ -18,30 +18,34 @@ This project provides an ultra-minimal, efficient implementation of graph algori
   3. Real-world road networks represent undirected physical roadway connections.
 
 ### Core Data Structure
-* **Adjacency List:** `std::vector<std::vector<int>>` inside `Graph` struct.
+* **Adjacency List:** `std::vector<std::vector<int>>` inside `Graph` struct (`include/graph_operations.h`).
 * **Complexity:** O(V + 2E) integers memory, O(1) vertex neighbor lookup, optimal CPU cache locality.
 
 ---
 
-## 2. Minimal Directory Layout
+## 2. Organized Project Structure
 
 ```
 aoa-assignment-1/
-├── graph_operations.h       # Graph struct & declarations for the 3 algorithms
-├── graph_operations.cpp     # connected_components(), one_cycle(), shortest_paths()
-├── graph_simulator.h        # Declarations for all 6 simulated graph generators
-├── graph_simulator.cpp      # Implementations of simulated graph generators
-├── simulated_test.cpp       # Main driver for simulated tests & scaling benchmarks
-├── realgraph_make.h         # Bonus: Real graph ingestion with 3 adjacency criteria
-├── realgraph_make.cpp       # Preprocessing & filtering of SNAP road network
-├── run_realgraph_make.cpp   # Bonus runner for 1.96M-node real graph
-├── benchmark.h              # Minimal cross-platform timer & peak memory profiler
-├── results.txt              # Experimental results, metrics, and observations
-├── Makefile                 # Minimal build configuration
-├── README.md                # Project overview and instructions
-├── Karimikonda Harsha assignment1.zip # Submission archive
-└── data/
-    └── roadNet-CA.txt       # Real dataset (1,965,206 nodes, 2,766,607 edges)
+├── include/
+│   ├── graph_operations.h       # Graph struct & declarations for the 3 algorithms
+│   ├── graph_simulator.h        # Declarations for all 6 simulated graph generators
+│   ├── realgraph_make.h         # Bonus: Real graph ingestion with 3 adjacency criteria
+│   └── benchmark.h              # Cross-platform timer & peak memory profiler (Windows/macOS/Linux)
+├── src/
+│   ├── graph_operations.cpp     # connected_components(), one_cycle(), shortest_paths()
+│   ├── graph_simulator.cpp      # Implementations of simulated graph generators
+│   ├── simulated_test.cpp       # Main driver for simulated tests & scaling benchmarks
+│   ├── realgraph_make.cpp       # Preprocessing & filtering of SNAP road network
+│   └── run_realgraph_make.cpp   # Bonus runner for 1.96M-node real graph
+├── docs/
+│   └── results.txt              # Experimental results, metrics, and observations
+├── data/
+│   └── roadNet-CA.txt           # Real dataset (1,965,206 nodes, 2,766,607 edges)
+├── Makefile                     # Cross-platform build configuration (Windows & macOS)
+├── README.md                    # Project overview and instructions
+├── results.txt                  # Root copy of experimental report
+└── Karimikonda Harsha assignment1.zip # Submission archive
 ```
 
 ---
@@ -68,7 +72,7 @@ aoa-assignment-1/
 ## 4. How to Compile and Run
 
 ```bash
-# Build both executables:
+# Build both executables with Make:
 make
 
 # Run simulated graph tests and benchmarks:
@@ -78,8 +82,13 @@ make
 ./run_realgraph_make
 ```
 
-Direct compilation with g++:
+Direct compilation with g++ / clang++:
 ```bash
-g++ -std=c++17 -O3 graph_operations.cpp graph_simulator.cpp simulated_test.cpp -o simulated_test -lpsapi
-g++ -std=c++17 -O3 graph_operations.cpp realgraph_make.cpp run_realgraph_make.cpp -o run_realgraph_make -lpsapi
+# Windows:
+g++ -std=c++17 -O3 -Iinclude src/graph_operations.cpp src/graph_simulator.cpp src/simulated_test.cpp -o simulated_test -lpsapi
+g++ -std=c++17 -O3 -Iinclude src/graph_operations.cpp src/realgraph_make.cpp src/run_realgraph_make.cpp -o run_realgraph_make -lpsapi
+
+# macOS / Linux:
+clang++ -std=c++17 -O3 -Iinclude src/graph_operations.cpp src/graph_simulator.cpp src/simulated_test.cpp -o simulated_test
+clang++ -std=c++17 -O3 -Iinclude src/graph_operations.cpp src/realgraph_make.cpp src/run_realgraph_make.cpp -o run_realgraph_make
 ```
