@@ -1,6 +1,11 @@
-CXX = g++
+CXX ?= g++
 CXXFLAGS = -std=c++17 -O3 -Wall -Wextra
-LDFLAGS = -lpsapi
+
+ifeq ($(OS),Windows_NT)
+    LDFLAGS = -lpsapi
+else
+    LDFLAGS =
+endif
 
 all: simulated_test run_realgraph_make
 

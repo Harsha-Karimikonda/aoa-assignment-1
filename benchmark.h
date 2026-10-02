@@ -18,7 +18,13 @@ inline double get_peak_memory_mb() {
     }
 #else
     struct rusage u;
-    if (getrusage(RUSAGE_SELF, &u) == 0) return u.ru_maxrss / 1024.0;
+    if (getrusage(RUSAGE_SELF, &u) == 0) {
+#if defined(__APPLE__)
+        return u.ru_maxrss / (1024.0 * 1024.0); // macOS reports in bytes
+#else
+        return u.ru_maxrss / 1024.0;            // Linux reports in kilobytes
+#endif
+    }
 #endif
     return 0.0;
 }
