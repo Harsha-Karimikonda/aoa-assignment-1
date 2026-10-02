@@ -1,0 +1,22 @@
+# Binaries and object files
+*.exe
+*.o
+*.obj
+*.pdb
+*.ilk
+
+# Build directories
+build/
+bin/
+
+# Large datasets and archives
+data/*.txt
+data/*.gz
+*.zip
+*.tar.gz
+*.7z
+
+# Visual Studio / VSCode / IDE files
+.vscode/
+.vs/
+.idea/
