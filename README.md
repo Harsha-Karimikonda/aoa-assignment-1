@@ -8,129 +8,78 @@
 
 ## 1. Project Overview
 
-This project implements fundamental graph algorithms and simulated data generators from scratch using C++ STL basic data structures (`std::vector`, `std::map`, `std::stack`, `std::queue`, `std::pair`), strictly adhering to the prohibition against external graph libraries (such as Boost Graph Library).
+This project provides an ultra-minimal, efficient implementation of graph algorithms in C++ without any external libraries, adhering strictly to assignment requirements.
 
 ### Graph Model Selection
 * **Model:** **Undirected Graph**
 * **Rationale:**
-  1. All 6 simulated graphs ($n$-cycle, complete graph $K_n$, empty graph, binary heap, truncated heap, and equivalence mod $k$) represent bidirectional, symmetric connectivity.
-  2. Cycle detection in an undirected graph rigorously excludes trivial backtracks to immediate parents ($u \to v \to u$), returning simple cycles with $\ge 3$ distinct vertices ($\ge 4$ vertices starting and ending with the same vertex).
-  3. Real-world road networks represent undirected physical road segments.
+  1. All 6 simulated graphs (n-cycle, Kn, empty, heap, truncated heap, equivalence mod k) represent symmetric, bidirectional relationships.
+  2. In undirected graphs, simple cycle detection ignores trivial parent backtracks (u -> v -> u), returning cycles with >= 3 distinct vertices (length >= 4 with start == end).
+  3. Real-world road networks represent undirected physical roadway connections.
 
 ### Core Data Structure
-* **Adjacency List:** Encapsulated in `Graph` class via `std::vector<std::vector<int>>`.
-* **Space Complexity:** $O(V + 2E)$ integers with optimal CPU cache locality and zero pointer overhead.
-* **Traversal Complexity:** $O(1)$ vertex lookup, $O(\text{deg}(u))$ neighbor traversal.
+* **Adjacency List:** `std::vector<std::vector<int>>` inside `Graph` struct.
+* **Complexity:** O(V + 2E) integers memory, O(1) vertex neighbor lookup, optimal CPU cache locality.
 
 ---
 
-## 2. Directory Structure
+## 2. Minimal Directory Layout
 
 ```
 aoa-assignment-1/
-├── include/
-│   ├── graph.h                 # Graph data structure declaration
-│   ├── graph_operations.h      # Declarations of the 3 required algorithms
-│   ├── graph_simulator.h       # Simulated graph generators (all 6 implemented)
-│   ├── realgraph_make.h        # 1M+ real graph ingestion with 3 criteria (Bonus)
-│   └── benchmark_utils.h       # High-res timer & OS peak memory profiler (Windows/POSIX)
-├── src/
-│   ├── graph.cpp               # Graph class implementation
-│   ├── graph_operations.cpp    # connected_components(), one_cycle(), shortest_paths()
-│   ├── graph_simulator.cpp     # Simulated graph generators implementation
-│   ├── realgraph_make.cpp      # Real-world loaders (Criterion 1, 2, and 3)
-│   ├── simulated_test.cpp      # Main benchmark driver for simulated graphs
-│   └── run_realgraph_make.cpp  # Main benchmark driver for 1M+ real graph
-├── data/
-│   └── roadNet-CA.txt          # Stanford SNAP California Road Network (1.96M nodes)
-├── docs/
-│   ├── results.txt             # Comprehensive experimental report & observations
-│   └── simulated_results.txt   # Raw simulated benchmark matrix output
-├── Makefile                    # Make build script
-├── CMakeLists.txt              # CMake build configuration
-├── results.txt                 # Root copy of experimental report
-└── README.md                   # Project documentation & instructions
+├── graph_operations.h       # Graph struct & declarations for the 3 algorithms
+├── graph_operations.cpp     # connected_components(), one_cycle(), shortest_paths()
+├── graph_simulator.h        # Declarations for all 6 simulated graph generators
+├── graph_simulator.cpp      # Implementations of simulated graph generators
+├── simulated_test.cpp       # Main driver for simulated tests & scaling benchmarks
+├── realgraph_make.h         # Bonus: Real graph ingestion with 3 adjacency criteria
+├── realgraph_make.cpp       # Preprocessing & filtering of SNAP road network
+├── run_realgraph_make.cpp   # Bonus runner for 1.96M-node real graph
+├── benchmark.h              # Minimal cross-platform timer & peak memory profiler
+├── results.txt              # Experimental results, metrics, and observations
+├── Makefile                 # Minimal build configuration
+├── README.md                # Project overview and instructions
+├── Karimikonda Harsha assignment1.zip # Submission archive
+└── data/
+    └── roadNet-CA.txt       # Real dataset (1,965,206 nodes, 2,766,607 edges)
 ```
 
 ---
 
-## 3. Implemented Graph Operations
+## 3. Implemented Functions
 
 1. **`connected_components(const Graph& g)`**:
-   - Depth-First Search using an explicit `std::stack<int>`.
-   - Iterative implementation prevents call-stack exhaustion on deep graphs with up to $10^6$ nodes.
-   - Time Complexity: $O(V + E)$ | Space: $O(V)$.
+   - Iterative stack-safe DFS using `std::stack<int>`. Prevents stack overflow on 1M+ nodes.
+   - Time Complexity: O(V + E) | Space: O(V).
 
 2. **`one_cycle(const Graph& g)`**:
-   - DFS with tri-state vertex coloring and predecessor tracking.
-   - Ignores trivial backtracks to immediate parents; extracts simple cycles $\ge 3$ distinct vertices.
-   - Returns empty vector `{}` if acyclic.
-   - Time Complexity: $O(V + E)$ | Space: $O(V)$.
+   - DFS with tri-state coloring and predecessor tracking.
+   - Reconstructs cycle of >= 3 distinct vertices (`[v, ..., u, v]`). Returns `{}` if acyclic.
+   - Time Complexity: O(V + E) | Space: O(V).
 
 3. **`shortest_paths(const Graph& g, int source)`**:
-   - Dijkstra's algorithm with min-heap priority queue (`std::priority_queue`).
-   - Relaxations for unweighted edges (weight = 1).
-   - Reconstructs path list $sp[v]$ from $v$ back to $source$ for all reachable vertices.
-   - Excludes unreachable vertices.
-   - Time Complexity: $O((V + E) \log V)$ | Space: $O(V + \sum \text{path lengths})$.
+   - Dijkstra's algorithm with min-heap (`std::priority_queue`).
+   - Unweighted edges (weight = 1).
+   - Reconstructs path list `sp[v]` from $v$ back to $source$ for each reachable vertex.
+   - Time Complexity: O((V + E) log V) | Space: O(V + sum of path lengths).
 
 ---
 
-## 4. Simulated Graphs (All 6 Implemented)
+## 4. How to Compile and Run
 
-1. **$n$-Cycle**: Single component, diameter $n/2$, unique cycle of length $n$.
-2. **Complete Graph ($K_n$)**: Single component, unit shortest path, exponential cycles.
-3. **Empty Graph**: $n$ components, 0 edges, acyclic, only source reachable.
-4. **Binary Heap**: Single component (tree), short paths $O(\log n)$, acyclic.
-5. **Truncated Heap**: $n - 1 - 2m$ edges, $m + 1$ components, short paths, acyclic.
-6. **Equivalence Mod $k$**: $k$ components (disjoint cliques of size $\lceil n/k \rceil$).
-
----
-
-## 5. Bonus: Real-Life Graph ($> 1,000,000$ Nodes)
-
-* **Dataset:** Stanford SNAP California Road Network (`roadNet-CA`).
-* **Scale:** 1,965,206 nodes, 2,766,607 undirected edges.
-* **Three Adjacency Criteria:**
-  - **Criterion 1 (Full Road Network):** All raw edges, normalized to $[0, V-1]$, self-loops removed, bidirectional.
-    * 2,638 components in 69.2 ms (giant component of 1,957,027 nodes).
-    * Cycle of length 8 in 3.02 ms.
-    * Dijkstra shortest paths across 1.957M nodes in 2.66 s.
-  - **Criterion 2 (Core Arterial Network):** Retains edges where both endpoints have degree $\ge 2$. Strips 321,213 dead-end cul-de-sacs.
-    * 321,426 components in 125.1 ms.
-  - **Criterion 3 (Modular Regional Partitioning):** Retains edges where $u \pmod 4 == v \pmod 4$. Partitions graph into 4 regional networks.
-    * 1,396,622 components in 264.0 ms, max component size 17 nodes.
-
----
-
-## 6. How to Build and Run
-
-### Prerequisites
-* C++17 compatible compiler (GCC / MinGW-w64 or Clang).
-
-### Compilation via Makefile
 ```bash
-# Build both simulated and real-graph benchmarks
+# Build both executables:
 make
 
-# Or run individual executables:
+# Run simulated graph tests and benchmarks:
 ./simulated_test
+
+# Run real graph bonus benchmark (1.96M nodes):
 ./run_realgraph_make
 ```
 
-### Direct Compilation with g++
+Direct compilation with g++:
 ```bash
-# Compile simulated test driver:
-g++ -std=c++17 -O3 -Iinclude src/graph.cpp src/graph_operations.cpp src/graph_simulator.cpp src/simulated_test.cpp -o simulated_test -lpsapi
-
-# Compile real-graph bonus driver:
-g++ -std=c++17 -O3 -Iinclude src/graph.cpp src/graph_operations.cpp src/realgraph_make.cpp src/run_realgraph_make.cpp -o run_realgraph_make -lpsapi
+g++ -std=c++17 -O3 graph_operations.cpp graph_simulator.cpp simulated_test.cpp -o simulated_test -lpsapi
+g++ -std=c++17 -O3 graph_operations.cpp realgraph_make.cpp run_realgraph_make.cpp -o run_realgraph_make -lpsapi
 ```
-
----
-
-## 7. Submission Archive
-
-Per assignment specification:
-* Archive filename: `Karimikonda Harsha assignment1.zip`
-* Contains source files, drivers, results report, Makefile, and README.
