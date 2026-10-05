@@ -79,7 +79,13 @@ make
 ./simulated_test
 
 # Run real graph bonus benchmark (1.96M nodes):
-./run_realgraph_make
+# (Defaults to data/roadNet-CA.txt, or pass custom path as argument):
+./run_realgraph_make [path/to/roadNet-CA.txt]
+```
+
+To fetch the SNAP California road network dataset into `data/`:
+```bash
+mkdir -p data && curl -sSL https://snap.stanford.edu/data/roadNet-CA.txt.gz | gzip -d > data/roadNet-CA.txt
 ```
 
 Direct compilation with g++ / clang++:

@@ -1,5 +1,7 @@
 # Binaries and object files
 *.exe
+simulated_test
+run_realgraph_make
 *.o
 *.obj
 *.pdb
