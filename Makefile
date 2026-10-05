@@ -26,7 +26,7 @@ package:
 	@mkdir -p .staging/include .staging/src
 	@cp include/* .staging/include/
 	@cp src/* .staging/src/
-	@cp Makefile README.md results.txt .staging/
+	@cp Makefile README.md results.txt AI_PROMPTS.md .staging/
 	@cp include/*.h src/*.cpp .staging/
 	@cp "include/graph_operations.h" ".staging/graph operations.h"
 	@cp "src/graph_operations.cpp" ".staging/graph operations.cpp"

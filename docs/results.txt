@@ -5,6 +5,7 @@
 Author: Harsha Karimikonda
 Programming Language: C++ (C++17 standard, Apple Clang / GCC 14.1.0; macOS Apple Silicon & Windows)
 Submission Archive: Karimikonda Harsha assignment1.zip
+AI Collaboration Record: AI_PROMPTS.md / docs/AI_PROMPTS.md
 GitHub Repository: https://github.com/Harsha-Karimikonda/aoa-assignment-1.git
 
 
