@@ -1,110 +1,86 @@
-# AI Prompts & Collaboration Log
+# AI Prompts Used for Assignment 1
 
-**Assignment:** Analysis of Algorithms - Assignment 1 (Graph Algorithms)  
+**Course:** Analysis of Algorithms - Assignment 1 (Graph Algorithms)  
 **Author:** Harsha Karimikonda  
-**Tool Used:** Gemini / Antigravity AI Assistant  
+**Tool:** Gemini / Antigravity AI Assistant  
 
-This document lists the prompts and discussions I had with the AI assistant while planning, implementing, testing, and packaging this assignment.
-
----
-
-### 1. Project Planning & Data Structure
-
-**Prompt:**
-> "I am working on Assignment 1 for my algorithms class. We need to implement connected components, cycle detection, and shortest paths in C++ without external graph libraries. Should I treat the graphs as directed or undirected, and what data structure is best if we might test up to 2 million nodes?"
-
-**Discussion & Decision:**
-We decided on an **undirected graph** because all 6 simulated graphs and road networks represent symmetric relationships. For the data structure, we chose an adjacency list using `std::vector<std::vector<int>>` because an adjacency matrix would take terabytes for 2M nodes, and linked lists have too much pointer overhead and cache misses.
+Below is the chronological sequence of prompts and interactions used while working on this assignment.
 
 ---
 
-### 2. Implementing the 3 Graph Functions
+### Prompt 1: Understanding the Assignment Description
+> "Here is the assignment description for my algorithms class: [pasted full assignment prompt]. Can you break this down for me and explain what all the requirements, parts, and deliverables are?"
 
-**Prompt:**
-> "For connected components, if I use recursive DFS it might crash with a stack overflow on large or deep graphs. Can we write an iterative DFS using `std::stack` instead?"
-
-**Discussion & Decision:**
-Implemented `connected_components` using an explicit heap-allocated `std::stack<int>` and a visited vector. This ensures it runs in $O(V + E)$ time without any risk of blowing the call stack on graphs with millions of vertices.
-
----
-
-**Prompt:**
-> "For `one_cycle`, the assignment asks for a cycle of at least 3 unique nodes starting and ending at the same node. In an undirected graph, how do I prevent DFS from just going back to the parent node and calling that a cycle?"
-
-**Discussion & Decision:**
-Tracked the parent of each vertex during DFS. If a neighbor is the parent, we skip it. If a neighbor is already in the current DFS path (an ancestor), we trace back through parent pointers to construct the cycle `[v, ..., u, v]` with $\ge 3$ distinct vertices.
+**Summary of Discussion:**
+The assistant broke down the prompt into three main parts:
+1. Implementing a custom graph data structure and the 3 core functions (`connected_components`, `one_cycle`, `shortest_paths`).
+2. Generating at least 3 simulated graph types and benchmarking them.
+3. Bonus: running the algorithms on a real-world graph with $\ge 1\text{M}$ nodes using 3 different adjacency criteria.
+Deliverables included `results.txt`, source files, and a specific zip naming format.
 
 ---
 
-**Prompt:**
-> "The prompt requires Dijkstra's algorithm for shortest paths with unit edge weights, returning a map where `sp[v]` is the path from `v` back to `source`. Can we implement this with `std::priority_queue`?"
+### Prompt 2: Choosing C++ and the Graph Data Structure
+> "The assignment allows either C++ or Java. I want to do this in C++ rather than Java. Let's decide on the graph model first: should we treat it as directed or undirected? Also, what basic C++ data structure should we use to store the graph so that it's fast and doesn't run out of memory on up to 2 million nodes?"
 
-**Discussion & Decision:**
-Implemented Dijkstra with a min-priority queue and a predecessor array. Reconstructed the path backwards from each reachable node to the source. Unreachable nodes are excluded from the map.
-
----
-
-### 3. Simulated Graph Generators & Testing
-
-**Prompt:**
-> "Can you help me implement the 6 simulated graph generators in `graph_simulator.cpp`? Specifically, check my math for the truncated heap to make sure the indices match the formula in the prompt."
-
-**Discussion & Decision:**
-Implemented all 6 generators (n-cycle, complete Kn, binary heap, truncated heap, empty graph, and mod k). Verified that the truncated heap with $m = n/4$ produces $m + 1$ components and $n - 1 - 2m$ edges.
+**Summary of Discussion:**
+- Selected an **undirected graph** model because all 6 simulated graph families and road networks represent bidirectional connections.
+- Selected an adjacency list using `std::vector<std::vector<int>>` inside a `Graph` struct. We ruled out an adjacency matrix because 2 million nodes would take terabytes of RAM.
 
 ---
 
-**Prompt:**
-> "Let's write a driver program `simulated_test.cpp` that checks correctness assertions on small graphs first, and then runs benchmarks on larger sizes while printing runtime and peak memory."
+### Prompt 3: Implementing the Three Core Functions
+> "Let's implement the three required functions in `graph_operations.cpp`:
+> 1. `connected_components`: Can we make this iterative with `std::stack` so deep recursion doesn't cause a stack overflow on large graphs?
+> 2. `one_cycle`: How do we make sure DFS in an undirected graph doesn't immediately backtrack to the parent node and call it a cycle? It needs to return a cycle with at least 3 distinct vertices.
+> 3. `shortest_paths`: Let's implement Dijkstra's algorithm for unweighted graphs (unit weight 1) using a priority queue, returning a map where each path traces from vertex `v` back to `source`."
 
-**Discussion & Decision:**
-Created `simulated_test.cpp` with assertion checks (6-cycle, K5, heap acyclicity, truncated heap components, mod 3) and a benchmark loop that prints a clean table for sizes up to 200,000 nodes.
-
----
-
-### 4. Real-World Road Network Bonus
-
-**Prompt:**
-> "For the bonus, I downloaded the California road network dataset from Stanford SNAP (`roadNet-CA.txt`, ~1.96M nodes). How should we parse the text file efficiently and map the node IDs to contiguous numbers from 0 to V-1?"
-
-**Discussion & Decision:**
-Wrote `realgraph_make.cpp` using `std::ifstream` and `std::unordered_map` to parse raw node IDs into contiguous indices $0 \dots V-1$, skipping comments and self-loops.
+**Summary of Discussion:**
+Implemented all three functions in `src/graph_operations.cpp`:
+- `connected_components` uses iterative DFS with `std::stack<int>` and a visited vector ($O(V + E)$).
+- `one_cycle` uses DFS with tri-state coloring and parent tracking, ignoring immediate parent backtracks and returning `[v, ..., u, v]`.
+- `shortest_paths` uses Dijkstra with `std::priority_queue` and path reconstruction from $v$ back to `source`.
 
 ---
 
-**Prompt:**
-> "The bonus asks for at least 3 different adjacency criteria with comments. What are three meaningful criteria we can test on this road dataset?"
+### Prompt 4: Simulated Graph Generators & Test Suite
+> "I also want you to write the testing files and generators. Can we implement all 6 simulated graph generators in `graph_simulator.cpp` (n-cycle, complete Kn, binary heap, truncated heap, empty, and equivalence mod k)? Then let's write `simulated_test.cpp` to run correctness checks on small graphs and scale up nodes to benchmark runtime and memory."
 
-**Discussion & Decision:**
-Implemented:
-1. Full baseline road network (all valid edges).
-2. Core arterial network (degree $\ge$ 2 filtering to prune dead-end suburban cul-de-sacs).
-3. Modular partition ($u \pmod 4 == v \pmod 4$ to simulate 4 regional transportation districts).
+**Summary of Discussion:**
+- Implemented all 6 graph generators in `src/graph_simulator.cpp`, ensuring the truncated heap edge and component counts matched the formulas.
+- Created `src/simulated_test.cpp` which runs automated correctness assertions (6-cycle, K5, heap acyclicity, truncated heap components, mod 3) and prints a scaling benchmark table up to 200,000 nodes.
 
 ---
 
-### 5. Benchmarking & Memory Profiling
+### Prompt 5: Bonus — Real-World Road Network (1.96M Nodes)
+> "For the bonus, I'm using the California Road Network from Stanford SNAP (`roadNet-CA.txt`, ~1.96M nodes, 2.76M edges). How should we parse this file in `realgraph_make.cpp` to map arbitrary node IDs to contiguous 0..V-1 indices? Also, what are 3 meaningful adjacency criteria we can implement?"
 
-**Prompt:**
-> "How do I measure peak memory in C++ without external libraries on both macOS and Windows?"
-
-**Discussion & Decision:**
-Created `include/benchmark.h` using `#ifdef` preprocessor checks for `GetProcessMemoryInfo` on Windows and `getrusage` (`ru_maxrss`) on macOS/Linux.
-
----
-
-**Prompt:**
-> "Why does Dijkstra take significantly longer on the n-cycle (e.g., 5,000 nodes) compared to the binary heap, even though both have roughly the same number of edges?"
-
-**Discussion & Decision:**
-Noticed that the diameter of an n-cycle is $n/2$, meaning average shortest path length is $n/4$. Storing all paths back to source takes $O(N^2)$ memory. In a binary heap, tree depth is $O(\log N)$, so paths only take $O(N \log N)$ space. Documented this observation in `results.txt`.
+**Summary of Discussion:**
+- Wrote an efficient parser in `src/realgraph_make.cpp` using `unordered_map` to map raw IDs to contiguous indices `0..V-1`, filtering out self-loops and comments.
+- Implemented 3 domain-relevant criteria:
+  1. Full Baseline Road Network (all edges).
+  2. Core Arterial Network (degree $\ge$ 2 filtering, stripping dead-end cul-de-sacs).
+  3. Modular Regional Partitioning ($u \pmod 4 == v \pmod 4$, simulating 4 regional transportation districts).
+- Wrote `src/run_realgraph_make.cpp` to evaluate all 3 criteria on the road network.
 
 ---
 
-### 6. Makefile & Submission Packaging
+### Prompt 6: Cross-Platform Memory and CPU Profiling
+> "How do we measure peak memory consumption and CPU runtime in C++ across both macOS and Windows without using external libraries?"
 
-**Prompt:**
-> "Can we write a clean Makefile that works on both macOS Clang and Windows GCC, and add a `make package` rule that creates `Karimikonda Harsha assignment1.zip` with all required files?"
+**Summary of Discussion:**
+Created `include/benchmark.h` using `#ifdef` directives:
+- Windows: `GetProcessMemoryInfo` for `PeakWorkingSetSize`.
+- macOS: `getrusage(RUSAGE_SELF, ...)` using `ru_maxrss` (bytes).
+- Linux: `getrusage` using `ru_maxrss` (KB).
+- Used `std::chrono::high_resolution_clock` for millisecond-level CPU timing.
 
-**Discussion & Decision:**
-Configured `Makefile` with cross-platform flags and a `package` target that stages and creates the submission zip requested by the prompt.
+---
+
+### Prompt 7: Build Automation, Report & Submission Packaging
+> "Can we write a Makefile to build both binaries (`simulated_test` and `run_realgraph_make`) on macOS and Windows? Also, help me format `results.txt` with our benchmark tables, observations, and sample outputs, and add a rule to package everything into `Karimikonda Harsha assignment1.zip` as specified in the prompt."
+
+**Summary of Discussion:**
+- Created `Makefile` with clean build and `package` targets.
+- Formatted `results.txt` with experimental data, memory/time scaling analysis, and sample test outputs.
+- Configured packaging to produce `Karimikonda Harsha assignment1.zip` with all required files and directory structure.
