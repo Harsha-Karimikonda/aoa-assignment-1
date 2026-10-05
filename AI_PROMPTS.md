@@ -66,21 +66,18 @@ Implemented all three functions in `src/graph_operations.cpp`:
 ---
 
 ### Prompt 6: Cross-Platform Memory and CPU Profiling
-> "How do we measure peak memory consumption and CPU runtime in C++ across both macOS and Windows without using external libraries?"
+> "How do we measure peak memory consumption and CPU runtime in C++ across both macOS and Windows without using external libraries? Also, how do we make sure that earlier large tests don't skew later smaller tests' memory readings?"
 
 **Summary of Discussion:**
-Created `include/benchmark.h` using `#ifdef` directives:
-- Windows: `GetProcessMemoryInfo` for `PeakWorkingSetSize`.
-- macOS: `getrusage(RUSAGE_SELF, ...)` using `ru_maxrss` (bytes).
-- Linux: `getrusage` using `ru_maxrss` (KB).
-- Used `std::chrono::high_resolution_clock` for millisecond-level CPU timing.
+- Created `include/benchmark.h` using `#ifdef` directives for Windows (`GetProcessMemoryInfo`), macOS (`getrusage` bytes), and Linux (`getrusage` KB).
+- Isolated benchmark runs in `src/simulated_test.cpp` so that each scale reports its genuine isolated peak memory rather than a cumulative process high-water mark.
 
 ---
 
-### Prompt 7: Build Automation, Report & Submission Packaging
-> "Can we write a Makefile to build both binaries (`simulated_test` and `run_realgraph_make`) on macOS and Windows? Also, help me format `results.txt` with our benchmark tables, observations, and sample outputs, and add a rule to package everything into `Karimikonda Harsha assignment1.zip` as specified in the prompt."
+### Prompt 7: Build Automation & Final Report
+> "Can we write a clean Makefile to build both binaries (`simulated_test` and `run_realgraph_make`) on macOS and Windows without messy duplicate files? Also, help me format `results.txt` with our benchmark tables, observations, and sample outputs."
 
 **Summary of Discussion:**
-- Created `Makefile` with clean build and `package` targets.
-- Formatted `results.txt` with experimental data, memory/time scaling analysis, and sample test outputs.
-- Configured packaging to produce `Karimikonda Harsha assignment1.zip` with all required files and directory structure.
+- Created a minimal, clean `Makefile` that builds `simulated_test` and `run_realgraph_make` directly from `src/` and `include/`.
+- Formatted `results.txt` with experimental data, memory/time scaling analysis, and sample test outputs for both simulated and real graph tests.
+

@@ -43,8 +43,7 @@ aoa-assignment-1/
 │   └── roadNet-CA.txt           # Real dataset (1,965,206 nodes, 2,766,607 edges)
 ├── Makefile                     # Cross-platform build configuration (Windows & macOS)
 ├── README.md                    # Project overview and instructions
-├── results.txt                  # Root copy of experimental report
-└── Karimikonda Harsha assignment1.zip # Submission archive
+└── results.txt                  # Root copy of experimental report
 ```
 
 ---

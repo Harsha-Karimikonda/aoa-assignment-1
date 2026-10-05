@@ -35,7 +35,12 @@ void test_correctness() {
     std::cout << "Equiv mod 3(10): Components=" << connected_components(eq).size() << " (Exp: 3)\n\n";
 }
 
-void bench_graph(const std::string& name, const Graph& g, int n) {
+#if !defined(_WIN32)
+#include <unistd.h>
+#include <sys/wait.h>
+#endif
+
+void run_single_bench(const std::string& name, const Graph& g, int n) {
     using clock = std::chrono::high_resolution_clock;
 
     auto t0 = clock::now();
@@ -57,7 +62,27 @@ void bench_graph(const std::string& name, const Graph& g, int n) {
               << std::setw(12) << t_cyc
               << std::setw(8)  << (!cycle.empty() ? "Yes" : "No")
               << std::setw(10) << t_sp
-              << std::setw(10) << std::setprecision(2) << get_peak_memory_mb() << "\n";
+              << std::setw(10) << std::setprecision(2) << get_peak_memory_mb() << "\n" << std::flush;
+}
+
+template <typename Func>
+void bench_graph(const std::string& name, int n, Func generator) {
+#if !defined(_WIN32)
+    pid_t pid = fork();
+    if (pid == 0) {
+        Graph g = generator();
+        run_single_bench(name, g, n);
+        _exit(0);
+    } else if (pid > 0) {
+        waitpid(pid, nullptr, 0);
+    } else {
+        Graph g = generator();
+        run_single_bench(name, g, n);
+    }
+#else
+    Graph g = generator();
+    run_single_bench(name, g, n);
+#endif
 }
 
 int main() {
@@ -71,22 +96,22 @@ int main() {
     std::cout << std::string(76, '-') << "\n";
 
     // 1. n-cycle
-    for (int n : {100, 500, 1000, 2000, 5000}) bench_graph("n-Cycle", generate_n_cycle(n), n);
+    for (int n : {100, 500, 1000, 2000, 5000}) bench_graph("n-Cycle", n, [n](){ return generate_n_cycle(n); });
 
     // 2. Complete Graph Kn
-    for (int n : {50, 100, 250, 500, 1000}) bench_graph("Complete Kn", generate_complete_graph(n), n);
+    for (int n : {50, 100, 250, 500, 1000}) bench_graph("Complete Kn", n, [n](){ return generate_complete_graph(n); });
 
     // 3. Binary Heap
-    for (int n : {1000, 10000, 50000, 100000}) bench_graph("Binary Heap", generate_heap(n), n);
+    for (int n : {1000, 10000, 50000, 100000}) bench_graph("Binary Heap", n, [n](){ return generate_heap(n); });
 
     // 4. Truncated Heap (m = n / 4)
-    for (int n : {1000, 10000, 50000, 100000}) bench_graph("Trunc Heap", generate_truncated_heap(n / 4, n), n - (n / 4));
+    for (int n : {1000, 10000, 50000, 100000}) bench_graph("Trunc Heap", n - (n / 4), [n](){ return generate_truncated_heap(n / 4, n); });
 
     // 5. Empty Graph
-    for (int n : {1000, 10000, 50000, 100000}) bench_graph("Empty Graph", generate_empty_graph(n), n);
+    for (int n : {1000, 10000, 50000, 100000}) bench_graph("Empty Graph", n, [n](){ return generate_empty_graph(n); });
 
     // 6. Equivalence Mod 10
-    for (int n : {100, 250, 500, 1000, 2000}) bench_graph("Equiv Mod 10", generate_equivalence_mod_k(n, 10), n);
+    for (int n : {100, 250, 500, 1000, 2000}) bench_graph("Equiv Mod 10", n, [n](){ return generate_equivalence_mod_k(n, 10); });
 
     return 0;
 }
