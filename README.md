@@ -2,7 +2,6 @@
 
 **Author:** Harsha Karimikonda  
 **Language:** C++ (C++17, GCC / MinGW-w64 or Apple Clang)  
-**Repository:** https://github.com/Harsha-Karimikonda/aoa-assignment-1.git
 
 ---
 
@@ -39,14 +38,12 @@ aoa-assignment-1/
 │   ├── realgraph_make.cpp       # Preprocessing & filtering of SNAP road network
 │   └── run_realgraph_make.cpp   # Bonus runner for 1.96M-node real graph
 ├── docs/
-│   ├── results.txt              # Experimental results, metrics, and observations
-│   └── AI_PROMPTS.md            # Comprehensive AI collaboration log & prompts record
+│   └── results.txt              # Experimental results, metrics, and observations
 ├── data/
 │   └── roadNet-CA.txt           # Real dataset (1,965,206 nodes, 2,766,607 edges)
 ├── Makefile                     # Cross-platform build configuration (Windows & macOS)
 ├── README.md                    # Project overview and instructions
 ├── results.txt                  # Root copy of experimental report
-├── AI_PROMPTS.md                # Root copy of AI collaboration log
 └── Karimikonda Harsha assignment1.zip # Submission archive
 ```
 
